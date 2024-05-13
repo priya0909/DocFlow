@@ -22,6 +22,9 @@ public class OrganisationService {
     UserRepository userRepository;
     public ResponseEntity addOrg(Organisation organisation){
         Organisation org = organisationRepository.save(organisation);
+        OrganisationDTO organisationDTO = new OrganisationDTO();
+        organisationDTO.setName(org.getName());
+        organisationDTO.setDescription(org.getDescription());
         return new ResponseEntity(org,HttpStatus.OK);
 
     }
@@ -54,7 +57,7 @@ public class OrganisationService {
        organisationDTO.setName(org.getName());
        organisationDTO.setDescription(org.getDescription());
 
-        return new ResponseEntity("user updated",HttpStatus.OK);
+        return new ResponseEntity(organisationDTO,HttpStatus.OK);
 
    }
 

@@ -25,7 +25,7 @@ public class OrganisationService {
         OrganisationDTO organisationDTO = new OrganisationDTO();
         organisationDTO.setName(org.getName());
         organisationDTO.setDescription(org.getDescription());
-        return new ResponseEntity(org,HttpStatus.OK);
+        return new ResponseEntity(organisationDTO,HttpStatus.OK);
 
     }
     public ResponseEntity getOrg(Long orgId) {
@@ -54,14 +54,14 @@ public class OrganisationService {
        }
 
        OrganisationDTO organisationDTO = new OrganisationDTO();
-       organisationDTO.setName(org.getName());
+       organisationDTO.setName(name);
        organisationDTO.setDescription(org.getDescription());
 
         return new ResponseEntity(organisationDTO,HttpStatus.OK);
 
    }
 
-    public ResponseEntity addUser (Long orgId, Long userId) {
+    public ResponseEntity addUserInOrgClient (Long orgId, Long userId) {
         Organisation organisation;
         User user;
 
@@ -72,11 +72,13 @@ public class OrganisationService {
         catch(NoSuchElementException e) {
             return new ResponseEntity("User not found", HttpStatus.NOT_FOUND);
         }
-
+        userRepository.save(user);
+        organisationRepository.save(organisation);
         OrganisationDTO organisationDTO = new OrganisationDTO();
         organisationDTO.setName(organisation.getName());
         organisationDTO.setDescription(organisation.getDescription());
         organisation.getUsers().add(user);
+
 
 
         return new ResponseEntity("user added to list", HttpStatus.OK);

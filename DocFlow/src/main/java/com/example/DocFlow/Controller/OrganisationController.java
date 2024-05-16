@@ -19,24 +19,29 @@ public class OrganisationController {
 
 
     @PostMapping("/addOrg")
-     public ResponseEntity addOrg(@RequestBody Organisation organisation){
+     public ResponseEntity addOrg(@RequestBody Organisation organisation)
+    {
         return organisationService.addOrg(organisation);
     }
 
     @GetMapping("/getOrgInfo")
-    public ResponseEntity getOrg(@RequestParam("orgId")Long orgId){
-       return  organisationService.getOrg(orgId);
+    public ResponseEntity getOrg(@RequestParam("orgId")Long orgId)
+    {
+
+        return  organisationService.getOrg(orgId);
     }
 
     @PutMapping("/updateOrg")
-    public ResponseEntity updateOrg(@RequestParam("orgId")Long orgId, @RequestParam("name")String name){
+    public ResponseEntity updateOrg(@RequestParam("orgId")Long orgId, @RequestParam("name")String name)
+    {
        return organisationService.updateOrg(orgId,name);
 
     }
 
-    @PostMapping("/addUser")
-    public ResponseEntity addUser(@RequestParam("orgId")Long orgId, @RequestParam("userId")Long userId){
-        return organisationService.addUser(orgId,userId);
+    @PostMapping("/addUserInOrgClient")
+    public ResponseEntity addUser(@RequestParam("orgId")Long orgId, @RequestParam("userId")Long userId)
+    {
+        return organisationService.addUserInOrgClient(orgId,userId);
     }
 }
 

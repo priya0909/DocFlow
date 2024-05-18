@@ -1,6 +1,7 @@
 package com.example.DocFlow.Service;
 
 import com.example.DocFlow.DTOs.UserDTO;
+import com.example.DocFlow.ENums.VerificationType;
 import com.example.DocFlow.Entity.User;
 import com.example.DocFlow.Repository.UserRepository;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -8,6 +9,7 @@ import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Service;
 
+import java.util.Date;
 import java.util.NoSuchElementException;
 import java.util.Optional;
 
@@ -20,6 +22,11 @@ public class UserService {
 
     public ResponseEntity addUser (User user) {
         User user1 = userRepository.save(user);
+        UserDTO userDTO = new UserDTO();
+        userDTO.setUserId(user1.getUserId());
+        userDTO.setName(user1.getName());
+        userDTO.setEmail(user1.getEmail());
+        userDTO.setMobileNo(user1.getMobileNo());
        return new ResponseEntity<>(user1, HttpStatus.OK);
 
     }
@@ -135,7 +142,31 @@ public class UserService {
 //        return new ResponseEntity<List<User>>((List<User>) userDTO,HttpStatus.OK);
 //
 //    }
+    public ResponseEntity updateVerificationType(Long userId ,VerificationType verificationType) {
+        User user;
+        try {
 
+            Optional<User> userOptional = userRepository.findById(userId);
+            user = userOptional.get();
+        } catch (NoSuchElementException e) {
+            return new ResponseEntity<>("User not found", HttpStatus.NOT_FOUND);
+        }
 
+        user.setVerificationType(verificationType);
 
+        if (user.getVerificationType().equals(VerificationType.ALL)) {
+            user.setEmailVerifiedOn(new Date());
+            user.setPhoneVerifiedOn(new Date());
+        } else if (user.getVerificationType().equals(VerificationType.MOBILE)) {
+            user.setPhoneVerifiedOn(new Date());
+        } else if (user.getVerificationType().equals(VerificationType.EMAIL)) {
+            user.setEmailVerifiedOn(new Date());
+        } else {
+            return new ResponseEntity<>("Invalid VerificationType passed!!! " + userId, HttpStatus.OK);
+        }
+         userRepository.save(user);
+        return new ResponseEntity<>("Verification date updated " +
+                                                "successfully!!!, for user with Id " + userId, HttpStatus.OK);
+
+    }
 }

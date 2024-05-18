@@ -56,11 +56,11 @@ public class UserController {
         return userService.getUser(name);
     }
 
-//    @GetMapping("/getAllUsers")
-//    public ResponseEntity<List<User>> getAllUsers(){
-//        return userService.getAllUsers();
-//
-//    }
+    @GetMapping("/getAll")
+    public ResponseEntity getAllUsers(){
+        return userService.getAllUsers();
+
+    }
     @PutMapping("/updateVerificationType")
     public ResponseEntity updateVerificationType(@RequestParam("userId")Long userId,
                                                  @RequestParam("VerificationType")VerificationType verificationType){

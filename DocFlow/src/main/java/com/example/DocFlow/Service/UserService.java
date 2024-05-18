@@ -9,9 +9,7 @@ import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Service;
 
-import java.util.Date;
-import java.util.NoSuchElementException;
-import java.util.Optional;
+import java.util.*;
 
 @Service
 public class UserService {
@@ -23,7 +21,6 @@ public class UserService {
     public ResponseEntity addUser (User user) {
         User user1 = userRepository.save(user);
         UserDTO userDTO = new UserDTO();
-        userDTO.setUserId(user1.getUserId());
         userDTO.setName(user1.getName());
         userDTO.setEmail(user1.getEmail());
         userDTO.setMobileNo(user1.getMobileNo());
@@ -41,13 +38,11 @@ public class UserService {
         }
 
         UserDTO userDTO = new UserDTO();
-        userDTO.setUserId(user1.getUserId());
         userDTO.setName(user1.getName());
         userDTO.setEmail(user1.getEmail());
         userDTO.setMobileNo(user1.getMobileNo());
 
       return new ResponseEntity<>(userDTO,HttpStatus.OK);
-
     }
 
 //    public ResponseEntity<List<User>> getAllUsers(){
@@ -72,7 +67,6 @@ public class UserService {
 
         UserDTO userDTO = new UserDTO();
         userDTO.setName(name);
-        userDTO.setUserId(user1.getUserId());
         userDTO.setEmail(user1.getEmail());
         userDTO.setMobileNo(user1.getMobileNo());
         return new ResponseEntity<>(userDTO,HttpStatus.OK);
@@ -94,7 +88,6 @@ public class UserService {
 
        UserDTO userDTO = new UserDTO();
         userDTO.setName(name);
-        userDTO.setUserId(user1.getUserId());
         userDTO.setEmail(user1.getEmail());
         userDTO.setMobileNo(user1.getMobileNo());
 
@@ -113,7 +106,6 @@ public class UserService {
         }
 
         UserDTO userDTO = new UserDTO();
-        userDTO.setUserId(user1.getUserId());
         userDTO.setName(user1.getName());
         userDTO.setEmail(user1.getEmail());
         userDTO.setMobileNo(user1.getMobileNo());
@@ -122,26 +114,28 @@ public class UserService {
 
     }
 
-//    public ResponseEntity<List<User>> getAllUsers() {
-//        User user1;
-//        List<User> userOptional;
-//        try {
-//            userOptional = userRepository.findAll();
-//            user1 = userOptional.get();
-//        } catch (NoSuchElementException e) {
-//            return new ResponseEntity<List<User>>("User not found", HttpStatus.NOT_FOUND);
-//        }
-//        UserDTO userDTO = new UserDTO();
-//        for (int i = 0; i < userOptional.size(); i++) {
-//            userDTO.setUserId(user1.getUserId());
-//            userDTO.setName(user1.getName());
-//            userDTO.setEmail(user1.getEmail());
-//            userDTO.setMobileNo(user1.getMobileNo());
-//
-//        }
-//        return new ResponseEntity<List<User>>((List<User>) userDTO,HttpStatus.OK);
-//
-//    }
+    public ResponseEntity getAllUsers() {
+        User user1;
+        List<User> users;
+        List<UserDTO> userDTOList = new ArrayList<>();
+
+        try {
+            users = userRepository.findAll();
+
+        } catch (NoSuchElementException e) {
+            return new ResponseEntity<>("", HttpStatus.NOT_FOUND);
+        }
+
+        for(User user : users) {
+            UserDTO userDTO = new UserDTO();
+            userDTO.setName(user.getName());
+            userDTO.setMobileNo(user.getMobileNo());
+            userDTO.setEmail(user.getEmail());
+            userDTOList.add(userDTO);
+        }
+        return new ResponseEntity<>(userDTOList, HttpStatus.OK);
+
+    }
     public ResponseEntity updateVerificationType(Long userId ,VerificationType verificationType) {
         User user;
         try {
@@ -152,14 +146,12 @@ public class UserService {
             return new ResponseEntity<>("User not found", HttpStatus.NOT_FOUND);
         }
 
-        user.setVerificationType(verificationType);
-
-        if (user.getVerificationType().equals(VerificationType.ALL)) {
+        if (verificationType.equals(VerificationType.ALL)) {
             user.setEmailVerifiedOn(new Date());
             user.setPhoneVerifiedOn(new Date());
-        } else if (user.getVerificationType().equals(VerificationType.MOBILE)) {
+        } else if (verificationType.equals(VerificationType.MOBILE)) {
             user.setPhoneVerifiedOn(new Date());
-        } else if (user.getVerificationType().equals(VerificationType.EMAIL)) {
+        } else if (verificationType.equals(VerificationType.EMAIL)) {
             user.setEmailVerifiedOn(new Date());
         } else {
             return new ResponseEntity<>("Invalid VerificationType passed!!! " + userId, HttpStatus.OK);

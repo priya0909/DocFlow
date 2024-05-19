@@ -31,7 +31,7 @@ public class OrganisationController {
         return  organisationService.getOrg(orgId);
     }
 
-    @PutMapping("/updateOrg")
+    @PutMapping("/updateNameByOrgId")
     public ResponseEntity updateOrg(@RequestParam("orgId")Long orgId, @RequestParam("name")String name)
     {
        return organisationService.updateOrg(orgId,name);
@@ -43,5 +43,17 @@ public class OrganisationController {
     {
         return organisationService.addUserInOrgClient(orgId,userId);
     }
+
+    @GetMapping("/getOrgName")
+    public ResponseEntity getOrgName(@RequestParam("name")String name){
+        return organisationService.getOrgName(name);
+    }
+
+    @GetMapping("/getAll")
+    public ResponseEntity getAll(){
+        return organisationService.getAllOrgs();
+    }
+
+
 }
 

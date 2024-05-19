@@ -17,35 +17,25 @@ public class UserController {
     @Autowired
     UserRepository userRepository;
 
-    @PostMapping("/add")
+    @PostMapping("/addUser")
     public ResponseEntity addUser (@RequestBody User user) {
         return userService.addUser(user);
 
     }
 
-    @GetMapping("/get")
+    @GetMapping("/getUser")
     public ResponseEntity getUser (@RequestParam("userId") Long userId) {
         return userService.getUser(userId);
 
     }
 
-//    @GetMapping("/getUsers")
-//    public ResponseEntity<List<User>> getUsers(){
-//      List<User> list = userService.getAllUsers();
-//      if(list.size() <= 0){
-//          return ResponseEntity.status(HttpStatus.NOT_FOUND).build();
-//      }
-//      return ResponseEntity.of(Optional.of(list));
-//    }
-
-
-    @PutMapping("/update")
+    @PutMapping("/updateNameByUserId")
     public ResponseEntity updateUser (@RequestParam("userId") Long userId, @RequestParam("name") String name) {
         return userService.updateName(userId, name);
 
     }
 
-    @PutMapping("/updateName")
+    @PutMapping("/updateNameByEmail")
     public ResponseEntity updateUserName (@RequestParam("email") String email, @RequestParam("name") String name) {
         return userService.updateNameByEmail(email, name);
     }

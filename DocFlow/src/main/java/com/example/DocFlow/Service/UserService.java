@@ -28,13 +28,12 @@ public class UserService {
 
     }
 
-    public ResponseEntity getUser(Long userId){
+    public ResponseEntity getUser(Long userId) {
         User user1;
-        try{
-           user1 = userRepository.findById(userId).get();
-        }
-        catch(NoSuchElementException e){
-            return new ResponseEntity<>("User not found",HttpStatus.NOT_FOUND);
+        try {
+            user1 = userRepository.findById(userId).get();
+        } catch (NoSuchElementException e) {
+            return new ResponseEntity<>("User not found", HttpStatus.NOT_FOUND);
         }
 
         UserDTO userDTO = new UserDTO();
@@ -42,16 +41,9 @@ public class UserService {
         userDTO.setEmail(user1.getEmail());
         userDTO.setMobileNo(user1.getMobileNo());
 
-      return new ResponseEntity<>(userDTO,HttpStatus.OK);
+        return new ResponseEntity<>(userDTO, HttpStatus.OK);
     }
 
-//    public ResponseEntity<List<User>> getAllUsers(){
-//        List<User> users = userRepository.findAll();
-//
-//    }
-
-
-    //update name with userId
     public ResponseEntity updateName(Long userId, String name){
         User user1;
         try {
@@ -161,4 +153,6 @@ public class UserService {
                                                 "successfully!!!, for user with Id " + userId, HttpStatus.OK);
 
     }
+
+
 }

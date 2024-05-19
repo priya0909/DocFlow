@@ -10,6 +10,8 @@ import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Service;
 
+import java.util.ArrayList;
+import java.util.List;
 import java.util.NoSuchElementException;
 
 @Service
@@ -82,5 +84,47 @@ public class OrganisationService {
 
 
         return new ResponseEntity("user added to list", HttpStatus.OK);
+    }
+
+    public ResponseEntity getOrgName(String name){
+        Organisation organisation;
+
+        try{
+            organisation = organisationRepository.findByName(name);
+
+        }
+        catch(NoSuchElementException e){
+            return new ResponseEntity<>("User not found",HttpStatus.NOT_FOUND);
+
+        }
+
+        OrganisationDTO organisationDTO= new OrganisationDTO();
+        organisationDTO.setName(organisation.getName());
+        organisationDTO.setDescription(organisation.getDescription());
+        organisationRepository.save(organisation);
+
+        return  new ResponseEntity(organisationDTO,HttpStatus.OK);
+    }
+
+    public ResponseEntity getAllOrgs(){
+        Organisation organisation;
+        List<Organisation> organisations;
+        List<OrganisationDTO>organisationDTOList = new ArrayList<>();
+    try{
+        organisations = organisationRepository.findAll();
+    }
+    catch (NoSuchElementException e) {
+        return new ResponseEntity<>("Organisation Not found", HttpStatus.NOT_FOUND);
+    }
+
+    for(Organisation organisation1 : organisations){
+        OrganisationDTO organisationDTO =new OrganisationDTO();
+        organisationDTO.setName(organisation1.getName());
+        organisationDTOList.add(organisationDTO);
+
+        organisationRepository.saveAll(organisations);
+
+    }
+        return new ResponseEntity<>(organisationDTOList, HttpStatus.OK);
     }
 }

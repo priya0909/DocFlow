@@ -9,6 +9,7 @@ import lombok.NoArgsConstructor;
 import lombok.Setter;
 
 import java.util.Date;
+import java.util.List;
 
 @Getter
 @Setter
@@ -21,10 +22,10 @@ public class User {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long userId;
 
-    @Column(nullable = false)
+    @Column(nullable = false,unique = true)
     private String name;
 
-    @Column(nullable = false)
+    @Column(nullable = false,unique = true)
     private String email;
 
     @Column
@@ -51,12 +52,14 @@ public class User {
     @Column
     private Date phoneVerifiedOn;
 
-    @ManyToOne
-    Organisation organisation;
-
     @Enumerated(EnumType.STRING)
     private VerificationType verificationType;
 
+    @ManyToOne
+    Organisation organisation;
+
+    @OneToMany(targetEntity = Organisation.class, cascade =CascadeType.ALL,fetch = FetchType.LAZY,orphanRemoval = true)
+     List<Organisation> organisations;
 
 }
 

@@ -14,7 +14,7 @@ public class OrganisationDTO {
 
     private String name;
 
-    private String description;
+//    private String description;
 
 
 }

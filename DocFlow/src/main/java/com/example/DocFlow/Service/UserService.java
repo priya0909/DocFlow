@@ -2,9 +2,12 @@ package com.example.DocFlow.Service;
 
 import com.example.DocFlow.DTOs.UserDTO;
 import com.example.DocFlow.ENums.VerificationType;
+import com.example.DocFlow.Entity.Organisation;
 import com.example.DocFlow.Entity.User;
+import com.example.DocFlow.Repository.OrganisationRepository;
 import com.example.DocFlow.Repository.UserRepository;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.boot.autoconfigure.flyway.FlywayProperties;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Service;
@@ -17,14 +20,18 @@ public class UserService {
     @Autowired
     UserRepository userRepository;
 
+   @Autowired
+   OrganisationRepository organisationRepository;
+
 
     public ResponseEntity addUser (User user) {
+        user.setCreatedDate(new Date());
         User user1 = userRepository.save(user);
         UserDTO userDTO = new UserDTO();
         userDTO.setName(user1.getName());
         userDTO.setEmail(user1.getEmail());
         userDTO.setMobileNo(user1.getMobileNo());
-       return new ResponseEntity<>(user1, HttpStatus.OK);
+       return new ResponseEntity<>(userDTO, HttpStatus.OK);
 
     }
 
@@ -115,7 +122,7 @@ public class UserService {
             users = userRepository.findAll();
 
         } catch (NoSuchElementException e) {
-            return new ResponseEntity<>("", HttpStatus.NOT_FOUND);
+            return new ResponseEntity<>("no users", HttpStatus.NOT_FOUND);
         }
 
         for(User user : users) {
@@ -154,5 +161,25 @@ public class UserService {
 
     }
 
+    public ResponseEntity  addOrgsInUser(Long userId,Long orgId){
+        User user;
+        Organisation organisation;
+        try{
+            user = userRepository.findById(userId).get();
+            organisation = organisationRepository.findById(orgId).get();
+        }
+        catch(NoSuchElementException e){
+            return new ResponseEntity<>("User / Oraganisation not found", HttpStatus.NOT_FOUND);
+
+        }
+
+        List<Organisation> organisations = user.getOrganisations();
+        organisations.add(organisation);
+        user.setOrganisations(organisations);
+        userRepository.save(user);
+        return new ResponseEntity("Organisation added to list", HttpStatus.OK);
+
+
+    }
 
 }

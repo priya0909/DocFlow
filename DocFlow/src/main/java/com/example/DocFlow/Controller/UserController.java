@@ -56,4 +56,9 @@ public class UserController {
                                                  @RequestParam("VerificationType")VerificationType verificationType){
       return userService.updateVerificationType(userId, verificationType);
     }
+
+    @PostMapping("addOrgInUsers")
+    public ResponseEntity addOrgInUsers(@RequestParam("userId")Long userId,@RequestParam("orgId")Long orgId){
+        return userService.addOrgsInUser(userId,orgId);
+    }
 }

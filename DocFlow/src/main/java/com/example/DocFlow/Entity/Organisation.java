@@ -4,7 +4,6 @@ import jakarta.persistence.*;
 import lombok.Getter;
 import lombok.Setter;
 
-import java.util.ArrayList;
 import java.util.List;
 
 @Entity
@@ -16,7 +15,7 @@ import java.util.List;
         @GeneratedValue(strategy = GenerationType.IDENTITY)
         private Long orgId;
 
-        @Column(nullable = false)
+        @Column(nullable = false,unique = true)
         private String name;
 
         @Column(nullable = false)
@@ -24,8 +23,10 @@ import java.util.List;
 
 
        @OneToMany(targetEntity = User.class,cascade =CascadeType.ALL,fetch = FetchType.LAZY,orphanRemoval = true)
-       List<User> users = new ArrayList<>();
+       List<User> users;
 
+       @ManyToOne
+       User user;
     }
 
 

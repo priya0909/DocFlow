@@ -3,7 +3,7 @@
   <component name="ProjectModuleManager">
     <modules>
       <module fileurl="file://$PROJECT_DIR$/.idea/DocFlow.iml" filepath="$PROJECT_DIR$/.idea/DocFlow.iml" />
-      <module fileurl="file://$PROJECT_DIR$/.idea/modules/DocFlow.DocFlow.main~1.iml" filepath="$PROJECT_DIR$/.idea/modules/DocFlow.DocFlow.main~1.iml" />
+      <module fileurl="file://$PROJECT_DIR$/.idea/modules/DocFlow.DocFlow.main.iml" filepath="$PROJECT_DIR$/.idea/modules/DocFlow.DocFlow.main.iml" />
     </modules>
   </component>
 </project>

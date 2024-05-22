@@ -38,10 +38,10 @@ public class OrganisationController {
 
     }
 
-    @PostMapping("/addUserInOrgClient")
+    @PostMapping("/addUserToOrg")
     public ResponseEntity addUser(@RequestParam("orgId")Long orgId, @RequestParam("userId")Long userId)
     {
-        return organisationService.addUserInOrgClient(orgId,userId);
+        return organisationService.addUserInOrg(orgId,userId);
     }
 
     @GetMapping("/getOrgName")

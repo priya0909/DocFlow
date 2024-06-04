@@ -6,12 +6,15 @@ import com.example.DocFlow.Entity.Organisation;
 import com.example.DocFlow.Entity.User;
 import com.example.DocFlow.Repository.OrganisationRepository;
 import com.example.DocFlow.Repository.UserRepository;
+import com.example.DocFlow.Utils.Validator;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.autoconfigure.flyway.FlywayProperties;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Service;
 
+import java.sql.SQLException;
+import java.sql.SQLIntegrityConstraintViolationException;
 import java.util.*;
 
 @Service
@@ -25,14 +28,28 @@ public class UserService {
 
 
     public ResponseEntity addUser (User user) {
-        user.setCreatedDate(new Date());
-        User user1 = userRepository.save(user);
-        UserDTO userDTO = new UserDTO();
-        userDTO.setName(user1.getName());
-        userDTO.setEmail(user1.getEmail());
-        userDTO.setMobileNo(user1.getMobileNo());
-       return new ResponseEntity<>(userDTO, HttpStatus.OK);
 
+        if(!Validator.validateEmail(user.getEmail()))
+            return new ResponseEntity<>("Invalid email!!!", HttpStatus.EXPECTATION_FAILED);
+
+        if(!Validator.validatePhone(user.getMobileNo()))
+            return new ResponseEntity<>("Invalid Mobile Number!!!", HttpStatus.EXPECTATION_FAILED);
+        user.setCreatedDate(new Date());
+
+        User savedUser;
+
+        try {
+            savedUser = userRepository.save(user);
+        } catch (Exception e) {
+            return new ResponseEntity<>(e + " ", HttpStatus.SERVICE_UNAVAILABLE);
+        }
+
+        UserDTO userDTO = new UserDTO();
+        userDTO.setName(savedUser.getName());
+        userDTO.setEmail(savedUser.getEmail());
+        userDTO.setMobileNo(savedUser.getMobileNo());
+
+       return new ResponseEntity<>(userDTO, HttpStatus.OK);
     }
 
     public ResponseEntity getUser(Long userId) {
@@ -68,7 +85,7 @@ public class UserService {
         userDTO.setName(name);
         userDTO.setEmail(user1.getEmail());
         userDTO.setMobileNo(user1.getMobileNo());
-        return new ResponseEntity<>(userDTO,HttpStatus.OK);
+        return new ResponseEntity<>("success",HttpStatus.OK);
     }
 
     //update name with email
@@ -143,6 +160,10 @@ public class UserService {
             user = userOptional.get();
         } catch (NoSuchElementException e) {
             return new ResponseEntity<>("User not found", HttpStatus.NOT_FOUND);
+        }
+
+        if(Validator.validateEmail(user.getEmail())) {
+
         }
 
         if (verificationType.equals(VerificationType.ALL)) {

@@ -3,11 +3,12 @@ package com.example.DocFlow.Controller;
 import com.example.DocFlow.ENums.VerificationType;
 import com.example.DocFlow.Entity.User;
 import com.example.DocFlow.Repository.UserRepository;
-
 import com.example.DocFlow.Service.UserService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
+
+import java.sql.SQLException;
 
 @RestController
 @RequestMapping("/User")

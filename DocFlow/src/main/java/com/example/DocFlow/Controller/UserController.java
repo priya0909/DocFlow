@@ -1,14 +1,13 @@
 package com.example.DocFlow.Controller;
 
-import com.example.DocFlow.ENums.VerificationType;
 import com.example.DocFlow.Entity.User;
+import com.example.DocFlow.Enums.VerificationType;
 import com.example.DocFlow.Repository.UserRepository;
 import com.example.DocFlow.Service.UserService;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
-
-import java.sql.SQLException;
 
 @RestController
 @RequestMapping("/User")
@@ -20,20 +19,21 @@ public class UserController {
 
     @PostMapping("/addUser")
     public ResponseEntity addUser (@RequestBody User user) {
-        return userService.addUser(user);
-
+        try {
+            return userService.addUser(user);
+        } catch (Exception e) {
+            return new ResponseEntity(e.getMessage(), HttpStatus.BAD_REQUEST);
+        }
     }
 
     @GetMapping("/getUser")
     public ResponseEntity getUser (@RequestParam("userId") Long userId) {
         return userService.getUser(userId);
-
     }
 
     @PutMapping("/updateNameByUserId")
     public ResponseEntity updateUser (@RequestParam("userId") Long userId, @RequestParam("name") String name) {
         return userService.updateName(userId, name);
-
     }
 
     @PutMapping("/updateNameByEmail")
@@ -43,18 +43,17 @@ public class UserController {
 
     @GetMapping("/getName")
     public ResponseEntity getUserByName (@RequestParam("name") String name) {
-
         return userService.getUser(name);
     }
 
     @GetMapping("/getAll")
     public ResponseEntity getAllUsers(){
         return userService.getAllUsers();
-
     }
+
     @PutMapping("/updateVerificationType")
     public ResponseEntity updateVerificationType(@RequestParam("userId")Long userId,
-                                                 @RequestParam("VerificationType")VerificationType verificationType){
+                                                 @RequestParam("VerificationType") VerificationType verificationType){
       return userService.updateVerificationType(userId, verificationType);
     }
 

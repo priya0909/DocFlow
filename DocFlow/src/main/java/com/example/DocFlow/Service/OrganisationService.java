@@ -27,7 +27,7 @@ public class OrganisationService {
         OrganisationDTO organisationDTO = new OrganisationDTO();
         organisationDTO.setName(org.getName());
 //        organisationDTO.setDescription(org.getDescription());
-        return new ResponseEntity(organisationDTO,HttpStatus.OK);
+        return new ResponseEntity("Organisation Added Successfully!",HttpStatus.OK);
 
     }
     public ResponseEntity getOrg(Long orgId) {
@@ -54,12 +54,12 @@ public class OrganisationService {
        catch(NoSuchElementException e){
            return new ResponseEntity("User not found", HttpStatus.NOT_FOUND);
        }
-
-       OrganisationDTO organisationDTO = new OrganisationDTO();
-       organisationDTO.setName(name);
-//       organisationDTO.setDescription(org.getDescription());
-
-        return new ResponseEntity(organisationDTO,HttpStatus.OK);
+          org.setName(name);
+//       OrganisationDTO organisationDTO = new OrganisationDTO();
+//       organisationDTO.setName(name);
+////       organisationDTO.setDescription(org.getDescription());
+        organisationRepository.save(org);
+        return new ResponseEntity("Details updated successfully",HttpStatus.OK);
 
    }
 
@@ -74,15 +74,11 @@ public class OrganisationService {
         catch(NoSuchElementException e) {
             return new ResponseEntity("User not found", HttpStatus.NOT_FOUND);
         }
-
-        OrganisationDTO organisationDTO = new OrganisationDTO();
-        organisationDTO.setName(organisation.getName());
-//        organisationDTO.setDescription(organisation.getDescription());
         organisation.getUsers().add(user);
 
         organisationRepository.save(organisation);
 
-        return new ResponseEntity("user added to list", HttpStatus.OK);
+        return new ResponseEntity("User added to list", HttpStatus.OK);
     }
 
     public ResponseEntity getOrgName(String name){
@@ -99,7 +95,6 @@ public class OrganisationService {
 
         OrganisationDTO organisationDTO= new OrganisationDTO();
         organisationDTO.setName(organisation.getName());
-//        organisationDTO.setDescription(organisation.getDescription());
         organisationRepository.save(organisation);
 
         return  new ResponseEntity(organisationDTO,HttpStatus.OK);

@@ -1,55 +1,59 @@
 package com.example.DocFlow.Service;
 
 import com.example.DocFlow.DTOs.UserDTO;
-import com.example.DocFlow.ENums.VerificationType;
 import com.example.DocFlow.Entity.Organisation;
 import com.example.DocFlow.Entity.User;
+import com.example.DocFlow.Enums.VerificationType;
+import com.example.DocFlow.Exceptions.DatabaseConnectionException;
+import com.example.DocFlow.Exceptions.DuplicateKeyException;
 import com.example.DocFlow.Repository.OrganisationRepository;
 import com.example.DocFlow.Repository.UserRepository;
 import com.example.DocFlow.Utils.Validator;
+import org.apache.logging.log4j.core.Logger;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.boot.autoconfigure.flyway.FlywayProperties;
+import org.springframework.dao.DataIntegrityViolationException;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.CannotCreateTransactionException;
 
-import java.sql.SQLException;
-import java.sql.SQLIntegrityConstraintViolationException;
 import java.util.*;
+import java.util.zip.DataFormatException;
 
 @Service
 public class UserService {
-
     @Autowired
     UserRepository userRepository;
+    @Autowired
+    OrganisationRepository organisationRepository;
 
-   @Autowired
-   OrganisationRepository organisationRepository;
-
-
-    public ResponseEntity addUser (User user) {
+    public ResponseEntity addUser (User user) throws Exception {
 
         if(!Validator.validateEmail(user.getEmail()))
-            return new ResponseEntity<>("Invalid email!!!", HttpStatus.EXPECTATION_FAILED);
+            throw new DataFormatException("Email is not valid!!!");
 
         if(!Validator.validatePhone(user.getMobileNo()))
-            return new ResponseEntity<>("Invalid Mobile Number!!!", HttpStatus.EXPECTATION_FAILED);
-        user.setCreatedDate(new Date());
+            throw new DataFormatException("Invalid Mobile Number!!!");
+             user.setCreatedDate(new Date());
+
+        if(!Validator.validateName(user.getName()))
+            throw new DataFormatException("Invalid name!");
 
         User savedUser;
 
         try {
             savedUser = userRepository.save(user);
-        } catch (Exception e) {
-            return new ResponseEntity<>(e + " ", HttpStatus.SERVICE_UNAVAILABLE);
         }
-
-        UserDTO userDTO = new UserDTO();
-        userDTO.setName(savedUser.getName());
-        userDTO.setEmail(savedUser.getEmail());
-        userDTO.setMobileNo(savedUser.getMobileNo());
-
-       return new ResponseEntity<>(userDTO, HttpStatus.OK);
+        catch(DataIntegrityViolationException e){
+            throw new DuplicateKeyException("One of name, phone, email already exists in our Database!!");
+        }
+        catch(CannotCreateTransactionException e) {
+            throw new DatabaseConnectionException("Database connection lost!, please contact Tech team!");
+        }
+        catch (Exception e) {
+            throw new Exception(e + " ");
+        }
+        return new ResponseEntity<>("User Added Successfully!",HttpStatus.OK);
     }
 
     public ResponseEntity getUser(Long userId) {
@@ -64,6 +68,7 @@ public class UserService {
         userDTO.setName(user1.getName());
         userDTO.setEmail(user1.getEmail());
         userDTO.setMobileNo(user1.getMobileNo());
+        userDTO.setVerificationType(user1.getVerificationType());
 
         return new ResponseEntity<>(userDTO, HttpStatus.OK);
     }
@@ -81,17 +86,20 @@ public class UserService {
         user1.setName(name);
         userRepository.save(user1);
 
-        UserDTO userDTO = new UserDTO();
-        userDTO.setName(name);
-        userDTO.setEmail(user1.getEmail());
-        userDTO.setMobileNo(user1.getMobileNo());
-        return new ResponseEntity<>("success",HttpStatus.OK);
+        return new ResponseEntity<>("Name updated suucessfully!",HttpStatus.OK);
     }
 
     //update name with email
     public ResponseEntity updateNameByEmail(String email,String name){
-       User user1;
-       try{
+       User user1 = new User();
+        if(!Validator.validateEmail(user1.getEmail()))
+            return new ResponseEntity<>("Invalid email!!!", HttpStatus.EXPECTATION_FAILED);
+
+        if(!Validator.validatePhone(user1.getMobileNo()))
+            return new ResponseEntity<>("Invalid Mobile Number!!!", HttpStatus.EXPECTATION_FAILED);
+        user1.setCreatedDate(new Date());
+
+        try{
            Optional<User> userOptional = userRepository.findByEmail(email);
            user1 = userOptional.get();
        }
@@ -102,17 +110,13 @@ public class UserService {
        user1.setName(name);
        userRepository.save(user1);
 
-       UserDTO userDTO = new UserDTO();
-        userDTO.setName(name);
-        userDTO.setEmail(user1.getEmail());
-        userDTO.setMobileNo(user1.getMobileNo());
-
-        return new ResponseEntity<>(userDTO,HttpStatus.OK);
+        return new ResponseEntity<>("Email updated successfully!",HttpStatus.OK);
 
     }
 
     public ResponseEntity getUser(String name){
        User user1;
+
         try{
             Optional<User>userOptional = userRepository.findByName(name);
             user1 = userOptional.get();
@@ -147,6 +151,7 @@ public class UserService {
             userDTO.setName(user.getName());
             userDTO.setMobileNo(user.getMobileNo());
             userDTO.setEmail(user.getEmail());
+            userDTO.setVerificationType(user.getVerificationType());
             userDTOList.add(userDTO);
         }
         return new ResponseEntity<>(userDTOList, HttpStatus.OK);

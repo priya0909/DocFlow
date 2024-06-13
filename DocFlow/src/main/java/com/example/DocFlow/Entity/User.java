@@ -1,7 +1,7 @@
 package com.example.DocFlow.Entity;
 
 
-import com.example.DocFlow.ENums.VerificationType;
+import com.example.DocFlow.Enums.VerificationType;
 import jakarta.persistence.*;
 import lombok.AllArgsConstructor;
 import lombok.Getter;
@@ -16,19 +16,19 @@ import java.util.List;
 @Entity
 @NoArgsConstructor
 @AllArgsConstructor
-public class User {
+public class   User {
 
     @Id
-    @GeneratedValue(strategy = GenerationType.IDENTITY)
+    @GeneratedValue(strategy=GenerationType.IDENTITY)
     private Long userId;
 
-    @Column(nullable = false,unique = true)
+    @Column(nullable = false, unique = true)
     private String name;
 
-    @Column(nullable = false,unique = true)
+    @Column(nullable = false, unique = true)
     private String email;
 
-    @Column
+    @Column(nullable = false, unique = true)
     private String mobileNo;
 
     @Column
@@ -60,6 +60,7 @@ public class User {
 
     @OneToMany(targetEntity = Organisation.class, cascade =CascadeType.ALL,fetch = FetchType.LAZY,orphanRemoval = true)
      List<Organisation> organisations;
+
 
 }
 

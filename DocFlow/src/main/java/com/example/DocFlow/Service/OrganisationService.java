@@ -3,12 +3,14 @@ package com.example.DocFlow.Service;
 import com.example.DocFlow.DTOs.OrganisationDTO;
 import com.example.DocFlow.Entity.Organisation;
 import com.example.DocFlow.Entity.User;
+import com.example.DocFlow.Exceptions.DatabaseConnectionException;
 import com.example.DocFlow.Repository.OrganisationRepository;
 import com.example.DocFlow.Repository.UserRepository;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.CannotCreateTransactionException;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -22,21 +24,30 @@ public class OrganisationService {
 
     @Autowired
     UserRepository userRepository;
-    public ResponseEntity addOrg(Organisation organisation){
-        Organisation org = organisationRepository.save(organisation);
-        OrganisationDTO organisationDTO = new OrganisationDTO();
-        organisationDTO.setName(org.getName());
+    public ResponseEntity addOrg(Organisation organisation) throws DatabaseConnectionException {
+       try{
+           Organisation org = organisationRepository.save(organisation);
+       }
+       catch(CannotCreateTransactionException e) {
+           throw new DatabaseConnectionException("Database connection lost!, please contact Tech team!");
+       }
+//        OrganisationDTO organisationDTO = new OrganisationDTO();
+//        organisationDTO.setName(org.getName());
 //        organisationDTO.setDescription(org.getDescription());
         return new ResponseEntity("Organisation Added Successfully!",HttpStatus.OK);
 
     }
-    public ResponseEntity getOrg(Long orgId) {
+    public ResponseEntity getOrg(Long orgId) throws Exception {
         Organisation getOrgDetails;
         try {
             getOrgDetails = organisationRepository.findById(orgId).get();
+            organisationRepository.save(getOrgDetails);
         }
         catch (NoSuchElementException e) {
             return new ResponseEntity("User not found", HttpStatus.NOT_FOUND);
+        }
+        catch(CannotCreateTransactionException e){
+            throw new DatabaseConnectionException ("Database connection lost!, please contact Tech team!");
         }
         OrganisationDTO organisationDTO = new OrganisationDTO();
         organisationDTO.setName(getOrgDetails.getName());
@@ -46,19 +57,19 @@ public class OrganisationService {
 
     }
 
-   public ResponseEntity updateOrg(Long orgId,String name){
+   public ResponseEntity updateOrg(Long orgId,String name) throws DatabaseConnectionException {
        Organisation org;
        try {
            org = organisationRepository.findById(orgId).get();
+           org.setName(name);
+           organisationRepository.save(org);
        }
        catch(NoSuchElementException e){
            return new ResponseEntity("User not found", HttpStatus.NOT_FOUND);
        }
-          org.setName(name);
-//       OrganisationDTO organisationDTO = new OrganisationDTO();
-//       organisationDTO.setName(name);
-////       organisationDTO.setDescription(org.getDescription());
-        organisationRepository.save(org);
+        catch(CannotCreateTransactionException e){
+           throw new DatabaseConnectionException("Database connection lost!, please contact Tech team!");
+        }
         return new ResponseEntity("Details updated successfully",HttpStatus.OK);
 
    }
@@ -74,6 +85,9 @@ public class OrganisationService {
         catch(NoSuchElementException e) {
             return new ResponseEntity("User not found", HttpStatus.NOT_FOUND);
         }
+        catch(CannotCreateTransactionException e){
+            return new ResponseEntity("Database connection lost!, please contact Tech team!",HttpStatus.BAD_REQUEST);
+        }
         organisation.getUsers().add(user);
 
         organisationRepository.save(organisation);
@@ -87,12 +101,15 @@ public class OrganisationService {
         try{
             organisation = organisationRepository.findByName(name);
 
+
         }
         catch(NoSuchElementException e){
             return new ResponseEntity<>("User not found",HttpStatus.NOT_FOUND);
 
         }
-
+        catch(CannotCreateTransactionException e){
+            return new ResponseEntity("Database connection lost!, please contact Tech team!",HttpStatus.BAD_REQUEST);
+        }
         OrganisationDTO organisationDTO= new OrganisationDTO();
         organisationDTO.setName(organisation.getName());
         organisationRepository.save(organisation);
@@ -110,7 +127,9 @@ public class OrganisationService {
     catch (NoSuchElementException e) {
         return new ResponseEntity<>("Organisation Not found", HttpStatus.NOT_FOUND);
     }
-
+    catch(CannotCreateTransactionException e){
+        return new ResponseEntity("Database connection lost!, please contact Tech team!",HttpStatus.BAD_REQUEST);
+    }
     for(Organisation organisation1 : organisations){
         OrganisationDTO organisationDTO =new OrganisationDTO();
         organisationDTO.setName(organisation1.getName());

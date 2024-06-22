@@ -20,6 +20,8 @@ import org.springframework.transaction.CannotCreateTransactionException;
 import java.util.*;
 import java.util.zip.DataFormatException;
 
+import static com.example.DocFlow.DocFlowApplication.logger;
+
 @Service
 public class UserService {
     @Autowired
@@ -43,25 +45,37 @@ public class UserService {
 
         try {
             savedUser = userRepository.save(user);
+            logger.trace("user added!!");
         }
         catch(DataIntegrityViolationException e){
+            logger.error(e.toString());
             throw new DuplicateKeyException("One of name, phone, email already exists in our Database!!");
+        }
+        catch(CannotCreateTransactionException e) {
+            logger.error(e.toString());
+            throw new DatabaseConnectionException("Database connection lost!, please contact Tech team!");
+        }
+        catch (Exception e) {
+            logger.error(e.toString());
+            throw new Exception(e + " ");
+        }
+        logger.info("no excpetion");
+        return new ResponseEntity<>("User Added Successfully!",HttpStatus.OK);
+    }
+
+    public ResponseEntity getUser(Long userId) throws Exception{
+        User user1;
+        try {
+            user1 = userRepository.findById(userId).get();
+        }
+        catch(NoSuchElementException e) {
+           throw new Exception("User not found");
         }
         catch(CannotCreateTransactionException e) {
             throw new DatabaseConnectionException("Database connection lost!, please contact Tech team!");
         }
-        catch (Exception e) {
-            throw new Exception(e + " ");
-        }
-        return new ResponseEntity<>("User Added Successfully!",HttpStatus.OK);
-    }
-
-    public ResponseEntity getUser(Long userId) {
-        User user1;
-        try {
-            user1 = userRepository.findById(userId).get();
-        } catch (NoSuchElementException e) {
-            return new ResponseEntity<>("User not found", HttpStatus.NOT_FOUND);
+        catch(Exception e){
+            throw new Exception(e + "");
         }
 
         UserDTO userDTO = new UserDTO();
@@ -73,31 +87,41 @@ public class UserService {
         return new ResponseEntity<>(userDTO, HttpStatus.OK);
     }
 
-    public ResponseEntity updateName(Long userId, String name){
+    public ResponseEntity updateName(Long userId, String name) throws Exception{
         User user1;
         try {
             Optional<User> userOptional = userRepository.findById(userId);
             user1 = userOptional.get();
         }
         catch(NoSuchElementException e){
-            return new ResponseEntity<>("User not found",HttpStatus.NOT_FOUND);
+            throw new Exception("User not found");
         }
 
-        user1.setName(name);
-        userRepository.save(user1);
+        if(!Validator.validateName(user1.getName()))
+            throw new DataFormatException("Invalid name!");
+
+        User savedUser;
+
+        try {
+            savedUser = userRepository.save(user1);
+            user1.setName(name);
+        }
+        catch(DataIntegrityViolationException e){
+            throw new DuplicateKeyException("One of name, phone, email already exists in our Database!!");
+        }
+        catch(CannotCreateTransactionException e) {
+            throw new DatabaseConnectionException("Database connection lost!, please contact Tech team!");
+        }
 
         return new ResponseEntity<>("Name updated suucessfully!",HttpStatus.OK);
     }
 
     //update name with email
-    public ResponseEntity updateNameByEmail(String email,String name){
+    public ResponseEntity updateNameByEmail(String email,String name) throws DuplicateKeyException, DatabaseConnectionException {
        User user1 = new User();
         if(!Validator.validateEmail(user1.getEmail()))
             return new ResponseEntity<>("Invalid email!!!", HttpStatus.EXPECTATION_FAILED);
 
-        if(!Validator.validatePhone(user1.getMobileNo()))
-            return new ResponseEntity<>("Invalid Mobile Number!!!", HttpStatus.EXPECTATION_FAILED);
-        user1.setCreatedDate(new Date());
 
         try{
            Optional<User> userOptional = userRepository.findByEmail(email);
@@ -107,14 +131,22 @@ public class UserService {
            return new ResponseEntity<>("User not found",HttpStatus.NOT_FOUND);
        }
 
-       user1.setName(name);
-       userRepository.save(user1);
+       try{
+           user1.setName(name);
+           userRepository.save(user1);
+       }
+      catch(DataIntegrityViolationException e){
+          throw new DuplicateKeyException("One of name, phone, email already exists in our Database!!");
+      }
+       catch(CannotCreateTransactionException e){
+           throw new DatabaseConnectionException("Database connection lost!, please contact Tech team!");
+       }
 
         return new ResponseEntity<>("Email updated successfully!",HttpStatus.OK);
 
     }
 
-    public ResponseEntity getUser(String name){
+    public ResponseEntity getUser(String name) throws Exception {
        User user1;
 
         try{
@@ -123,6 +155,12 @@ public class UserService {
         }
         catch(NoSuchElementException e){
             return new ResponseEntity<>("User not found",HttpStatus.NOT_FOUND);
+        }
+        catch(CannotCreateTransactionException e) {
+            throw new DatabaseConnectionException("Database connection lost!, please contact Tech team!");
+        }
+        catch(Exception e){
+            throw new Exception(e + "");
         }
 
         UserDTO userDTO = new UserDTO();
@@ -134,7 +172,7 @@ public class UserService {
 
     }
 
-    public ResponseEntity getAllUsers() {
+    public ResponseEntity getAllUsers() throws Exception {
         User user1;
         List<User> users;
         List<UserDTO> userDTOList = new ArrayList<>();
@@ -144,6 +182,12 @@ public class UserService {
 
         } catch (NoSuchElementException e) {
             return new ResponseEntity<>("no users", HttpStatus.NOT_FOUND);
+        }
+        catch(CannotCreateTransactionException e) {
+            throw new DatabaseConnectionException("Database connection lost!, please contact Tech team!");
+        }
+        catch(Exception e){
+            throw new Exception(e + "");
         }
 
         for(User user : users) {
@@ -157,7 +201,7 @@ public class UserService {
         return new ResponseEntity<>(userDTOList, HttpStatus.OK);
 
     }
-    public ResponseEntity updateVerificationType(Long userId ,VerificationType verificationType) {
+    public ResponseEntity updateVerificationType(Long userId ,VerificationType verificationType) throws Exception {
         User user;
         try {
 
@@ -181,13 +225,22 @@ public class UserService {
         } else {
             return new ResponseEntity<>("Invalid VerificationType passed!!! " + userId, HttpStatus.OK);
         }
-         userRepository.save(user);
+
+        try{
+            userRepository.save(user);
+        }
+        catch(CannotCreateTransactionException e) {
+            throw new DatabaseConnectionException("Database connection lost!, please contact Tech team!");
+        }
+        catch(Exception e){
+            throw new Exception(e + "");
+        }
         return new ResponseEntity<>("Verification date updated " +
                                                 "successfully!!!, for user with Id " + userId, HttpStatus.OK);
 
     }
 
-    public ResponseEntity  addOrgsInUser(Long userId,Long orgId){
+    public ResponseEntity  addOrgsInUser(Long userId,Long orgId) throws Exception {
         User user;
         Organisation organisation;
         try{
@@ -202,7 +255,16 @@ public class UserService {
         List<Organisation> organisations = user.getOrganisations();
         organisations.add(organisation);
         user.setOrganisations(organisations);
-        userRepository.save(user);
+
+        try {
+            userRepository.save(user);
+        }
+        catch(CannotCreateTransactionException e) {
+            throw new DatabaseConnectionException("Database connection lost!, please contact Tech team!");
+        }
+        catch(Exception e){
+            throw new Exception(e + "");
+        }
         return new ResponseEntity("Organisation added to list", HttpStatus.OK);
 
 

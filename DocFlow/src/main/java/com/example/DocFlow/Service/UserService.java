@@ -9,7 +9,7 @@ import com.example.DocFlow.Exceptions.DuplicateKeyException;
 import com.example.DocFlow.Repository.OrganisationRepository;
 import com.example.DocFlow.Repository.UserRepository;
 import com.example.DocFlow.Utils.Validator;
-import org.apache.logging.log4j.core.Logger;
+//import org.apache.logging.log4j.core.Logger;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.dao.DataIntegrityViolationException;
 import org.springframework.http.HttpStatus;
@@ -31,14 +31,14 @@ public class UserService {
 
     public ResponseEntity addUser (User user) throws Exception {
 
-        if(!Validator.validateEmail(user.getEmail()))
+        if (!Validator.validateEmail(user.getEmail()))
             throw new DataFormatException("Email is not valid!!!");
 
-        if(!Validator.validatePhone(user.getMobileNo()))
+        if (!Validator.validatePhone(user.getMobileNo()))
             throw new DataFormatException("Invalid Mobile Number!!!");
-             user.setCreatedDate(new Date());
+        user.setCreatedDate(new Date());
 
-        if(!Validator.validateName(user.getName()))
+        if (!Validator.validateName(user.getName()))
             throw new DataFormatException("Invalid name!");
 
         User savedUser;
@@ -46,35 +46,33 @@ public class UserService {
         try {
             savedUser = userRepository.save(user);
             logger.trace("user added!!");
-        }
-        catch(DataIntegrityViolationException e){
+        } catch (DataIntegrityViolationException e) {
             logger.error(e.toString());
             throw new DuplicateKeyException("One of name, phone, email already exists in our Database!!");
-        }
-        catch(CannotCreateTransactionException e) {
+        } catch (CannotCreateTransactionException e) {
             logger.error(e.toString());
             throw new DatabaseConnectionException("Database connection lost!, please contact Tech team!");
-        }
-        catch (Exception e) {
+        } catch (Exception e) {
             logger.error(e.toString());
             throw new Exception(e + " ");
         }
         logger.info("no excpetion");
-        return new ResponseEntity<>("User Added Successfully!",HttpStatus.OK);
+        return new ResponseEntity<>("User Added Successfully!", HttpStatus.OK);
+
     }
 
-    public ResponseEntity getUser(Long userId) throws Exception{
+
+
+      public ResponseEntity getUser (Long userId) throws Exception {
         User user1;
         try {
             user1 = userRepository.findById(userId).get();
-        }
-        catch(NoSuchElementException e) {
-           throw new Exception("User not found");
-        }
-        catch(CannotCreateTransactionException e) {
+
+        } catch (NoSuchElementException e) {
+            throw new Exception("User not found");
+        } catch (CannotCreateTransactionException e) {
             throw new DatabaseConnectionException("Database connection lost!, please contact Tech team!");
-        }
-        catch(Exception e){
+        } catch (Exception e) {
             throw new Exception(e + "");
         }
 
@@ -86,6 +84,8 @@ public class UserService {
 
         return new ResponseEntity<>(userDTO, HttpStatus.OK);
     }
+
+
 
     public ResponseEntity updateName(Long userId, String name) throws Exception{
         User user1;
@@ -103,8 +103,9 @@ public class UserService {
         User savedUser;
 
         try {
-            savedUser = userRepository.save(user1);
             user1.setName(name);
+            savedUser = userRepository.save(user1);
+
         }
         catch(DataIntegrityViolationException e){
             throw new DuplicateKeyException("One of name, phone, email already exists in our Database!!");
@@ -113,7 +114,7 @@ public class UserService {
             throw new DatabaseConnectionException("Database connection lost!, please contact Tech team!");
         }
 
-        return new ResponseEntity<>("Name updated suucessfully!",HttpStatus.OK);
+        return new ResponseEntity<>("Name updated sucessfully!",HttpStatus.OK);
     }
 
     //update name with email

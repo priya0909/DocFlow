@@ -4,7 +4,7 @@
     <modules>
       <module fileurl="file://$PROJECT_DIR$/.idea/DocFlow.iml" filepath="$PROJECT_DIR$/.idea/DocFlow.iml" />
       <module fileurl="file://$PROJECT_DIR$/.idea/modules/DocFlow.DocFlow.main.iml" filepath="$PROJECT_DIR$/.idea/modules/DocFlow.DocFlow.main.iml" />
-      <module fileurl="file://$PROJECT_DIR$/.idea/modules/DocFlow.DocFlow.main~2.iml" filepath="$PROJECT_DIR$/.idea/modules/DocFlow.DocFlow.main~2.iml" />
+      <module fileurl="file://$PROJECT_DIR$/.idea/modules/DocFlow.DocFlow.main~1.iml" filepath="$PROJECT_DIR$/.idea/modules/DocFlow.DocFlow.main~1.iml" />
     </modules>
   </component>
 </project>
